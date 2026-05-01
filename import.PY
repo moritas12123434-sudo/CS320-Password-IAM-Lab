@@ -159,7 +159,7 @@ class App(tk.Tk):
         
         self.center_window(otp_win, otp_win_width, otp_win_height)
 
-    # ---- Login logic (unchanged validation) ----
+    # ---- Login logic  ----
     def login_attempt(self, username, password):
         if self.locked or self.attempts <= 0:
             return "locked", 0
