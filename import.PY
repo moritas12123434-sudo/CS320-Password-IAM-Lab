@@ -45,13 +45,10 @@ class App(tk.Tk):
     def __init__(self):
         super().__init__()
         self.title("Secure Authentication System")
-        
         self.width = 400
         self.height = 520
         self.geometry(f"{self.width}x{self.height}")
         self.configure(bg="#1e1e2f")
-
-        
         self.center_window(self)
 
         # shared data
@@ -77,7 +74,6 @@ class App(tk.Tk):
         self.show_frame("LoginPage")
 
     def center_window(self, window, width=None, height=None):
-        
         window.update_idletasks()
         if width is None:
             width = window.winfo_width()
@@ -107,22 +103,19 @@ class App(tk.Tk):
         popup_height = 100
         popup.configure(bg="#2c2c3e")
         popup.grab_set()
-
         tk.Label(popup, text="🔐 Your OTP Code", fg="white", bg="#2c2c3e",
                  font=("Arial", 12, "bold")).pack(pady=5)
         tk.Label(popup, text=otp, fg="cyan", bg="#2c2c3e",
                  font=("Arial", 16)).pack(pady=5)
         tk.Button(popup, text="OK", command=popup.destroy,
                   bg="#4CAF50", fg="white").pack(pady=5)
-
-        
         popup.update_idletasks()
         screen_width = popup.winfo_screenwidth()
         x = screen_width - popup_width - 20  
         y = 20
         popup.geometry(f"{popup_width}x{popup_height}+{x}+{y}")
 
-    #  OTP verification popup
+    # OTP verification popup
     def create_otp_verification_popup(self, username):
         otp_win = tk.Toplevel(self)
         otp_win.title("OTP Verification")
@@ -130,13 +123,11 @@ class App(tk.Tk):
         otp_win_height = 200
         otp_win.configure(bg="#2c2c3e")
         otp_win.grab_set()
-
         tk.Label(otp_win, text="Enter OTP Code", fg="white", bg="#2c2c3e",
                  font=("Arial", 12)).pack(pady=5)
         otp_entry = tk.Entry(otp_win)
         otp_entry.pack(pady=5)
 
-        # Error container (initially hidden)
         error_frame = tk.Frame(otp_win, bg="#2c2c3e")
         error_label = tk.Label(error_frame, text="", fg="red", bg="#2c2c3e")
         error_label.pack(side="left")
@@ -155,11 +146,9 @@ class App(tk.Tk):
 
         tk.Button(otp_win, text="Verify", command=verify_otp,
                   bg="#4CAF50", fg="white").pack(pady=10)
-
-        
         self.center_window(otp_win, otp_win_width, otp_win_height)
 
-    # ---- Login logic  ----
+    # Login logic
     def login_attempt(self, username, password):
         if self.locked or self.attempts <= 0:
             return "locked", 0
@@ -178,7 +167,7 @@ class App(tk.Tk):
                 self.locked = True
             return "fail", self.attempts
 
-    # ---- Registration ----
+    # Registration
     def register_user(self, username, password):
         if len(password) < 8:
             return False, "Password must be at least 8 characters"
@@ -208,6 +197,24 @@ class LoginPage(tk.Frame):
         self.entry_pass = tk.Entry(self, show="*")
         self.entry_pass.pack(pady=5)
 
+        # ----------- Toggle Button (Checkbutton) لإظهار/إخفاء كلمة المرور ----------
+        self.show_password_var = tk.BooleanVar(value=False)
+        self.toggle_check = tk.Checkbutton(
+            self,
+            text="Show Password",
+            variable=self.show_password_var,
+            onvalue=True,
+            offvalue=False,
+            command=self.toggle_password_visibility,
+            bg="#2c2c3e",
+            fg="white",
+            selectcolor="#2c2c3e",   
+            activebackground="#2c2c3e",
+            activeforeground="white"
+        )
+        self.toggle_check.pack(pady=2)
+        # -------------------------------------------------
+
         self.message_label = tk.Label(self, text="", fg="white", bg="#2c2c3e")
         self.message_label.pack(pady=5)
 
@@ -216,6 +223,13 @@ class LoginPage(tk.Frame):
 
         tk.Button(self, text="Don't have an account? Register",
                   bg="#2196F3", fg="white", command=self.go_to_register).pack(pady=5)
+
+    def toggle_password_visibility(self):
+        """تبديل إظهار/إخفاء كلمة المرور حسب حالة الـ Checkbutton"""
+        if self.show_password_var.get():
+            self.entry_pass.config(show="")
+        else:
+            self.entry_pass.config(show="*")
 
     def login(self):
         if self.controller.locked or self.controller.attempts <= 0:
@@ -252,6 +266,9 @@ class LoginPage(tk.Frame):
         self.entry_user.delete(0, tk.END)
         self.entry_pass.delete(0, tk.END)
         self.message_label.config(text="")
+        # إعادة التعيين إلى مخفي
+        self.entry_pass.config(show="*")
+        self.show_password_var.set(False)
 
 class RegisterPage(tk.Frame):
     def __init__(self, parent, controller):
@@ -268,6 +285,24 @@ class RegisterPage(tk.Frame):
         tk.Label(self, text="Password", fg="white", bg="#2c2c3e").pack()
         self.entry_pass = tk.Entry(self, show="*")
         self.entry_pass.pack(pady=5)
+
+        # ----------- Toggle Button (Checkbutton) لإظهار/إخفاء كلمة المرور 
+        self.show_password_var = tk.BooleanVar(value=False)
+        self.toggle_check = tk.Checkbutton(
+            self,
+            text="Show Password",
+            variable=self.show_password_var,
+            onvalue=True,
+            offvalue=False,
+            command=self.toggle_password_visibility,
+            bg="#2c2c3e",
+            fg="white",
+            selectcolor="#2c2c3e",
+            activebackground="#2c2c3e",
+            activeforeground="white"
+        )
+        self.toggle_check.pack(pady=2)
+        # -------------------------------------------------
 
         self.strength_label = tk.Label(self, text="", bg="#2c2c3e")
         self.strength_label.pack(pady=5)
@@ -287,6 +322,13 @@ class RegisterPage(tk.Frame):
 
         tk.Button(self, text="Register", bg="#4CAF50", fg="white",
                   width=15, command=self.register).pack(pady=10)
+
+    def toggle_password_visibility(self):
+        
+        if self.show_password_var.get():
+            self.entry_pass.config(show="")
+        else:
+            self.entry_pass.config(show="*")
 
     def update_strength(self, *args):
         password = self.password_var.get()
@@ -328,6 +370,9 @@ class RegisterPage(tk.Frame):
         self.strength_label.config(text="")
         self.attack_result.config(text="")
         self.feedback.config(text="")
+        
+        self.entry_pass.config(show="*")
+        self.show_password_var.set(False)
 
 class WelcomePage(tk.Frame):
     def __init__(self, parent, controller):
